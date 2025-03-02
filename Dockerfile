@@ -54,6 +54,8 @@ RUN a2ensite 000-default.conf
 
 RUN composer install --no-interaction --no-dev --optimize-autoloader --working-dir=/var/www/html || true
 
+RUN ls -l /var/www/html
+
 EXPOSE 80
 
 CMD ["apache2-foreground"]
