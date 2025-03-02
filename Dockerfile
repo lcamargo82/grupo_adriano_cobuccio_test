@@ -33,18 +33,18 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /var/www/html
 
-COPY . /var/www/html
+COPY ./api /var/www/html
 
 RUN echo "User www-data" >> /etc/apache2/apache2.conf \
     && echo "Group www-data" >> /etc/apache2/apache2.conf
 
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
-    && chmod -R 777 /var/www/html/api/storage /var/www/html/api/bootstrap/cache
+    && chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache
 
 RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf \
-    && echo '    DocumentRoot /var/www/html/api/public' >> /etc/apache2/sites-available/000-default.conf \
-    && echo '    <Directory /var/www/html/api/public>' >> /etc/apache2/sites-available/000-default.conf \
+    && echo '    DocumentRoot /var/www/html/public' >> /etc/apache2/sites-available/000-default.conf \
+    && echo '    <Directory /var/www/html/public>' >> /etc/apache2/sites-available/000-default.conf \
     && echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf \
     && echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf \
     && echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf \
@@ -52,7 +52,7 @@ RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf \
 
 RUN a2ensite 000-default.conf
 
-RUN composer install --no-interaction --no-dev --optimize-autoloader --working-dir=/var/www/html/api -vvv
+RUN composer install --no-interaction --no-dev --optimize-autoloader --working-dir=/var/www/html -vvv
 
 EXPOSE 80
 
