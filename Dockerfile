@@ -13,17 +13,16 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     pkg-config \
     unixodbc \
-    unixodbc-dev \
     apt-transport-https \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd mysqli pdo pdo_mysql mbstring zip opcache intl xml
 
-RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl -fsSL https://packages.microsoft.com/config/debian/11/prod.list | tee /etc/apt/sources.list.d/mssql-release.list \
+RUN curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/debian/11/prod bullseye main" > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 \
-    && echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc \
-    && apt-get install -y unixodbc-dev
+    && apt-get install -y unixodbc-dev || true \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 mssql-tools18 || true \
+    && echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> /etc/environment
 
 RUN pecl install pdo_sqlsrv sqlsrv \
     && docker-php-ext-enable pdo_sqlsrv sqlsrv
