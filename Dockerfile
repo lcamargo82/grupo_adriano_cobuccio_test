@@ -43,8 +43,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 777 /var/www/html/api/storage /var/www/html/api/bootstrap/cache
 
 RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf \
-    && echo '    DocumentRoot /var/www/html/public' >> /etc/apache2/sites-available/000-default.conf \
-    && echo '    <Directory /var/www/html/public>' >> /etc/apache2/sites-available/000-default.conf \
+    && echo '    DocumentRoot /var/www/html/api/public' >> /etc/apache2/sites-available/000-default.conf \
+    && echo '    <Directory /var/www/html/api/public>' >> /etc/apache2/sites-available/000-default.conf \
     && echo '        AllowOverride All' >> /etc/apache2/sites-available/000-default.conf \
     && echo '        Require all granted' >> /etc/apache2/sites-available/000-default.conf \
     && echo '    </Directory>' >> /etc/apache2/sites-available/000-default.conf \
