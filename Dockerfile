@@ -52,9 +52,7 @@ RUN echo '<VirtualHost *:80>' > /etc/apache2/sites-available/000-default.conf \
 
 RUN a2ensite 000-default.conf
 
-RUN composer install --no-interaction --no-dev --optimize-autoloader --working-dir=/var/www/html || true
-
-RUN ls -l /var/www/html/api
+RUN composer install --no-interaction --no-dev --optimize-autoloader --working-dir=/var/www/html/api -vvv
 
 EXPOSE 80
 
