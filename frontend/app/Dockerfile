@@ -1,4 +1,4 @@
-FROM node:22-alpine
+FROM node:22-alpine AS build
 
 # Set config
 ENV NPM_CONFIG_UPDATE_NOTIFIER=false
