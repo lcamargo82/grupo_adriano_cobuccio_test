@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
     apt-transport-https \
     libpq-dev \
     netcat-openbsd \
+    openssl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd mysqli pdo pdo_mysql mbstring zip opcache intl xml pdo_pgsql
 
@@ -32,6 +33,8 @@ RUN pecl install pdo_sqlsrv sqlsrv \
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN a2enmod rewrite && service apache2 restart
 
 WORKDIR /var/www/html
 

@@ -45,6 +45,8 @@ As aplicações estarão disponíveis nos endereços:
 
 API: http://localhost:8000/
 
+Documentação: http://localhost:8000/api/documentation
+
 Frontend: http://localhost:5173/
 
 ### 5. Migrations com seeds

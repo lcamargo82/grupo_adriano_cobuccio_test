@@ -20,6 +20,10 @@ php artisan migrate --no-interaction --force
 # Se precisar rodar seeds automaticamente, descomente a linha abaixo:
 php artisan db:seed --no-interaction --force
 
+# Generate Swagger documentation
+echo "📄 Generating API documentation..."
+php artisan l5-swagger:generate
+
 # Inicia o Apache
 echo "🚀 Iniciando o Apache..."
 exec apache2-foreground
