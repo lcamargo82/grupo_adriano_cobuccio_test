@@ -20,3 +20,4 @@ yarn-error.log
 /news/.app_optimized
 /news/.migrations_done
 /.DS_Store
+/frontend/app/node_modules
