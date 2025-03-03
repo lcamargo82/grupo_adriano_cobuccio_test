@@ -1,13 +1,22 @@
 FROM node:22-alpine
 
+# Set config
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+ENV NPM_CONFIG_FUND=false
+
+# Create and change to the app directory.
 WORKDIR /app
 
-COPY app/package*.json ./
+# Copy the files to the container image
+COPY package*.json ./
 
-RUN npm install
+# Install packages
+RUN npm ci
 
-COPY app/. ./
+# Copy local code to the container image.
+COPY . ./
 
+# Build the app.
 RUN npm run build
 
 # Use the Caddy image
