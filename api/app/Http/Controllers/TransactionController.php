@@ -19,19 +19,21 @@ class TransactionController extends Controller
     /**
      * @OA\Post(
      *     path="/api/transactions/transfer",
-     *     summary="Transfer money between users",
+     *     summary="Transfer money between accounts",
      *     tags={"Transaction"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"recipient_id","amount"},
-     *             @OA\Property(property="recipient_id", type="integer", example=2),
-     *             @OA\Property(property="amount", type="number", format="float", example=100.50)
+     *             required={"sender_id", "recipient_id", "amount", "type"},
+     *             @OA\Property(property="sender_id", type="integer", example=72, description="ID of the sender's account"),
+     *             @OA\Property(property="recipient_id", type="integer", example=2, description="ID of the recipient's account"),
+     *             @OA\Property(property="amount", type="number", format="float", example=100),
+     *             @OA\Property(property="type", type="string", example="transfer")
      *         )
      *     ),
      *     @OA\Response(response=200, description="Transfer successful"),
-     *     @OA\Response(response=400, description="Insufficient balance or unauthorized user")
+     *     @OA\Response(response=400, description="Insufficient balance or invalid accounts")
      * )
      */
     public function transfer(Request $request)
@@ -40,33 +42,36 @@ class TransactionController extends Controller
             $this->transactionService->transfer(Auth::id(), $request->all());
             return response()->json(['message' => 'Transfer successful']);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
     /**
      * @OA\Post(
      *     path="/api/transactions/deposit",
-     *     summary="Deposit money into account",
+     *     summary="Deposit money into an account",
      *     tags={"Transaction"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"amount"},
-     *             @OA\Property(property="amount", type="number", format="float", example=200.00)
+     *             required={"recipient_id", "amount", "type"},
+     *             @OA\Property(property="recipient_id", type="integer", example=72, description="ID of the account receiving the deposit"),
+     *             @OA\Property(property="amount", type="number", format="float", example=200),
+     *             @OA\Property(property="type", type="string", example="deposit")
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Deposit successful")
+     *     @OA\Response(response=200, description="Deposit successful"),
+     *     @OA\Response(response=400, description="Invalid account or unauthorized deposit")
      * )
      */
     public function deposit(Request $request)
     {
         try {
-            $this->transactionService->deposit(Auth::id(), $request->all());
+            $this->transactionService->deposit($request->all());
             return response()->json(['message' => 'Deposit successful']);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 }

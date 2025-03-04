@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +39,11 @@ class UserController
      */
     public function profile()
     {
-        return response()->json(Auth::user());
+        try {
+            return response()->json(Auth::user());
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
     }
 
     /**
@@ -74,7 +77,7 @@ class UserController
             $user = $this->userService->update(Auth::id(), $request->all());
             return response()->json(['message' => 'Perfil atualizado com sucesso', 'user' => $user]);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
@@ -100,7 +103,7 @@ class UserController
             $this->userService->delete(Auth::id());
             return response()->json(['message' => 'Perfil excluído com sucesso']);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 }

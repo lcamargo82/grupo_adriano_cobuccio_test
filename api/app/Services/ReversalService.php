@@ -31,44 +31,66 @@ class ReversalService
      * @return void
      * @throws Exception
      */
-    public function reverseTransaction($userId, array $data)
+    public function reverseTransfer($userId, array $data)
     {
-        $transaction = $this->transactionRepository->findById($data['transaction_id'], $userId);
+        try {
+            $transaction = $this->transactionRepository->findById($data['transaction_id'], $userId);
 
-        if (!$transaction || ($transaction->sender_id !== $userId && $transaction->recipient_id !== $userId)) {
-            throw new Exception('Invalid transaction or unauthorized reversal');
+            if (!$transaction) {
+                throw new Exception('Invalid transaction or unauthorized reversal');
+            }
+
+            $senderAccount = $this->accountRepository->accountFindById($transaction->sender_id);
+            $recipientAccount = $this->accountRepository->accountFindById($transaction->receiver_id);
+
+            if (!$senderAccount || !$recipientAccount) {
+                throw new Exception('Accounts not found');
+            }
+
+            if ($recipientAccount->balance < $transaction->amount) {
+                throw new Exception('Insufficient balance for reversal');
+            }
+
+            $this->reversalRepository->create([
+                'transaction_id' => $transaction->id,
+                'reason' => $data['reason'] ?? 'No reason provided'
+            ]);
+
+            $this->accountRepository->updateBalance($recipientAccount->id, -$transaction->amount);
+            $this->accountRepository->updateBalance($senderAccount->id, $transaction->amount);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }
-
-        $senderAccount = $this->accountRepository->findByUserId($transaction->sender_id, $userId);
-        $recipientAccount = $this->accountRepository->findByUserId($transaction->recipient_id, $userId);
-
-        if ($recipientAccount->balance < $transaction->amount) {
-            throw new Exception('Insufficient balance for reversal');
-        }
-
-        $this->reversalRepository->createReversal($transaction->id);
     }
 
     /**
-     * @param $userId
      * @param array $data
      * @return void
      * @throws Exception
      */
-    public function reverseDeposit($userId, array $data)
+    public function reverseDeposit(array $data)
     {
-        $deposit = $this->transactionRepository->findDepositById($data['deposit_id'], $userId);
+        try {
+            $deposit = $this->transactionRepository->findDepositById($data['deposit_id']);
 
-        if (!$deposit || $deposit->user_id !== $userId) {
-            throw new Exception('Invalid deposit or unauthorized reversal');
+            if (!$deposit) {
+                throw new Exception('Invalid deposit or unauthorized reversal');
+            }
+
+            $account = $this->accountRepository->accountFindById($deposit->receiver_id);
+
+            if (!$account) {
+                throw new Exception('Account not found');
+            }
+
+            $this->reversalRepository->create([
+                'transaction_id' => $deposit->id,
+                'reason' => $data['reason'] ?? 'No reason provided'
+            ]);
+
+            $this->accountRepository->updateBalance($account->id, -$deposit->amount);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }
-
-        $account = $this->accountRepository->findByUserId($userId, $userId);
-
-        if ($account->balance < $deposit->amount) {
-            throw new Exception('Insufficient balance for reversal');
-        }
-
-        $this->reversalRepository->createReversal($deposit->id);
     }
 }

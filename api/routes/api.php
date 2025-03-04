@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('transactions/deposit', [TransactionController::class, 'deposit']);
 
 Route::middleware('auth:api')->group(function () {
     Route::get('profile', [UserController::class, 'profile']);
@@ -27,12 +28,12 @@ Route::middleware('auth:api')->group(function () {
     Route::delete('profile', [UserController::class, 'deleteProfile']);
 
     Route::get('accounts', [AccountController::class, 'index']);
+    Route::get('accounts/{id}', [AccountController::class, 'show']);
     Route::post('accounts', [AccountController::class, 'store']);
     Route::delete('accounts/{id}', [AccountController::class, 'destroy']);
 
     Route::post('transactions/transfer', [TransactionController::class, 'transfer']);
-    Route::post('transactions/deposit', [TransactionController::class, 'deposit']);
 
-    Route::post('reversals/transaction', [ReversalController::class, 'reverseTransaction']);
+    Route::post('reversals/transfer', [ReversalController::class, 'reverseTransaction']);
     Route::post('reversals/deposit', [ReversalController::class, 'reverseDeposit']);
 });

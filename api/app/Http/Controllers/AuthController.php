@@ -46,11 +46,15 @@ class AuthController extends Controller
                 'password' => 'required|string|min:6'
             ]);
 
+            if (strlen($request['password']) < 100) {
+                throw new Exception('Invalid password format. Password must be encrypted.');
+            }
+
             $user = $this->authService->register($request->all());
 
             return response()->json(['message' => 'User registered successfully'], 201);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
@@ -83,7 +87,7 @@ class AuthController extends Controller
 
             return response()->json(['token' => $token]);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 }

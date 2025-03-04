@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
             $account = Account::factory()->for($user)->create();
 
             Transaction::factory(5)->create([
-                'sender_id' => $user->id,
-                'receiver_id' => User::inRandomOrder()->first()->id,
+                'sender_id' => $account->id,
+                'receiver_id' => Account::inRandomOrder()->first()->id,
             ]);
         });
     }

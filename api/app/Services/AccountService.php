@@ -23,7 +23,25 @@ class AccountService
      */
     public function getAll($userId)
     {
-        return $this->accountRepository->findAllByUserId($userId);
+        try {
+            return $this->accountRepository->findAllByUserId($userId);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+        }
+    }
+
+    /**
+     * @param $userId
+     * @param $accountId
+     * @return mixed
+     */
+    public function getById($userId, $accountId)
+    {
+        try {
+            return $this->accountRepository->findById($accountId, $userId);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+        }
     }
 
     /**
@@ -33,7 +51,11 @@ class AccountService
      */
     public function create($userId, array $data)
     {
-        return $this->accountRepository->create(['user_id' => $userId, 'name' => $data['name']]);
+        try {
+            return $this->accountRepository->create(['user_id' => $userId, 'name' => $data['name']]);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
+        }
     }
 
     /**
@@ -44,16 +66,20 @@ class AccountService
      */
     public function delete($userId, $accountId)
     {
-        $account = $this->accountRepository->findById($accountId, $userId);
+        try {
+            $account = $this->accountRepository->findById($accountId, $userId);
 
-        if (!$account) {
-            throw new Exception('Account not found');
+            if (!$account) {
+                throw new Exception('Account not found');
+            }
+
+            if ($account->balance != 0) {
+                throw new Exception('Account must have zero balance to be deleted');
+            }
+
+            return $this->accountRepository->delete($accountId, $userId);
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }
-
-        if ($account->balance != 0) {
-            throw new Exception('Account must have zero balance to be deleted');
-        }
-
-        return $this->accountRepository->delete($accountId, $userId);
     }
 }
