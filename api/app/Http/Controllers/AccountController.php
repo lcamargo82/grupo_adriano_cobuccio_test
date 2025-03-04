@@ -30,7 +30,31 @@ class AccountController extends Controller
         try {
             return response()->json($this->accountService->getAll(Auth::id()));
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
+        }
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/accounts/{id}",
+     *     summary="Get a specific account of the authenticated user",
+     *     tags={"Account"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(response=200, description="Account details")
+     * )
+     */
+    public function show($id)
+    {
+        try {
+            return response()->json($this->accountService->getById(Auth::id(), $id));
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
@@ -55,7 +79,7 @@ class AccountController extends Controller
         try {
             return response()->json($this->accountService->create(Auth::id(), $request->all()), 201);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 
@@ -81,7 +105,7 @@ class AccountController extends Controller
             $this->accountService->delete(Auth::id(), $id);
             return response()->json(['message' => 'Account deleted successfully']);
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
     }
 }

@@ -2,42 +2,26 @@
 
 namespace App\Services;
 
-use App\Models\User;
 use App\Repositories\UserRepository;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthService
 {
     protected $userRepository;
+    protected $securityService;
+
 
     /**
      * @param UserRepository $userRepository
+     * @param SecurityService $securityService
      */
-    public function __construct(UserRepository $userRepository)
+    public function __construct(UserRepository $userRepository, SecurityService $securityService)
     {
         $this->userRepository = $userRepository;
-    }
-
-    /**
-     * @param $encryptedPassword
-     * @return string
-     * @throws Exception
-     */
-    public function decryptPassword($encryptedPassword)
-    {
-        $privateKey = env('RSA_PRIVATE_KEY');
-        $privateKeyResource = openssl_pkey_get_private($privateKey);
-
-        if (!$privateKeyResource) {
-            throw new Exception('Invalid private key.');
-        }
-
-        $decryptedPassword = '';
-        openssl_private_decrypt(base64_decode($encryptedPassword), $decryptedPassword, $privateKeyResource);
-
-        return $decryptedPassword;
+        $this->securityService = $securityService;
     }
 
     /**
@@ -48,7 +32,7 @@ class AuthService
     public function register(array $data)
     {
         try {
-            $decryptedPassword = $this->decryptPassword($data['password']);
+            $decryptedPassword = $this->securityService->decryptPassword($data['password']);
 
             return $this->userRepository->create([
                 'name' => $data['name'],
@@ -56,7 +40,7 @@ class AuthService
                 'password' => Hash::make($decryptedPassword),
             ]);
         } catch (Exception $e) {
-            throw new Exception('Erro ao registrar usuário.');
+            throw new Exception('Erro ao registrar usuário.' . $e->getMessage(), $e->getCode() ?: 500);
         }
     }
 
@@ -68,23 +52,32 @@ class AuthService
     public function login(array $credentials)
     {
         try {
-            $decryptedPassword = $this->decryptPassword($credentials['password']);
+            if (empty($credentials['password'])) {
+                throw new Exception('Password is required.');
+            }
 
-            $user = $this->userRepository->findByEmail($credentials['email']);
+            $decryptedPassword = $this->securityService->decryptPassword($credentials['password']);
 
-            if (!$user || !Hash::check($decryptedPassword, $user->password)) {
+            if (!$decryptedPassword) {
+                throw new Exception('Failed to decrypt password.');
+            }
+
+            if (!Auth::attempt(['email' => $credentials['email'], 'password' => $decryptedPassword])) {
                 return null;
             }
 
-            $token = Auth::login($user);
+            $token = JWTAuth::attempt([
+                'email' => $credentials['email'],
+                'password' => $decryptedPassword
+            ]);
 
             if (!$token) {
-                throw new Exception('Fail to authenticate.');
+                throw new Exception('Unauthorized');
             }
 
             return ['token' => $token];
         } catch (Exception $e) {
-            throw new Exception('Error in authentication.');
+            throw new Exception('Error in authentication: ' . $e->getMessage(), $e->getCode() ?: 500);
         }
     }
 }

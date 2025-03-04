@@ -62,6 +62,33 @@
             }
         },
         "/api/accounts/{id}": {
+            "get": {
+                "tags": [
+                    "Account"
+                ],
+                "summary": "Get a specific account of the authenticated user",
+                "operationId": "552b29d7944dfff7a0c49abc83f44ea5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account details"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "delete": {
                 "tags": [
                     "Account"
@@ -193,12 +220,19 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "transaction_id"
+                                    "transaction_id",
+                                    "reason"
                                 ],
                                 "properties": {
                                     "transaction_id": {
+                                        "description": "ID of the transaction to be reversed",
                                         "type": "integer",
                                         "example": 10
+                                    },
+                                    "reason": {
+                                        "description": "Reason for the reversal",
+                                        "type": "string",
+                                        "example": "Sent to the wrong account"
                                     }
                                 },
                                 "type": "object"
@@ -234,12 +268,18 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "deposit_id"
+                                    "deposit_id",
+                                    "reason"
                                 ],
                                 "properties": {
                                     "deposit_id": {
                                         "type": "integer",
                                         "example": 5
+                                    },
+                                    "reason": {
+                                        "description": "Reason for the reversal",
+                                        "type": "string",
+                                        "example": "Sent to the wrong account"
                                     }
                                 },
                                 "type": "object"
@@ -267,7 +307,7 @@
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Transfer money between users",
+                "summary": "Transfer money between accounts",
                 "operationId": "c52a2fa87fe3a4d506bb209f47d65b2e",
                 "requestBody": {
                     "required": true,
@@ -275,18 +315,30 @@
                         "application/json": {
                             "schema": {
                                 "required": [
+                                    "sender_id",
                                     "recipient_id",
-                                    "amount"
+                                    "amount",
+                                    "type"
                                 ],
                                 "properties": {
+                                    "sender_id": {
+                                        "description": "ID of the sender's account",
+                                        "type": "integer",
+                                        "example": 72
+                                    },
                                     "recipient_id": {
+                                        "description": "ID of the recipient's account",
                                         "type": "integer",
                                         "example": 2
                                     },
                                     "amount": {
                                         "type": "number",
                                         "format": "float",
-                                        "example": 100.5
+                                        "example": 100
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "transfer"
                                     }
                                 },
                                 "type": "object"
@@ -299,7 +351,7 @@
                         "description": "Transfer successful"
                     },
                     "400": {
-                        "description": "Insufficient balance or unauthorized user"
+                        "description": "Insufficient balance or invalid accounts"
                     }
                 },
                 "security": [
@@ -314,7 +366,7 @@
                 "tags": [
                     "Transaction"
                 ],
-                "summary": "Deposit money into account",
+                "summary": "Deposit money into an account",
                 "operationId": "b8dfc48af354a927aa7f0dcc4572d402",
                 "requestBody": {
                     "required": true,
@@ -322,13 +374,24 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "amount"
+                                    "recipient_id",
+                                    "amount",
+                                    "type"
                                 ],
                                 "properties": {
+                                    "recipient_id": {
+                                        "description": "ID of the account receiving the deposit",
+                                        "type": "integer",
+                                        "example": 72
+                                    },
                                     "amount": {
                                         "type": "number",
                                         "format": "float",
                                         "example": 200
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "deposit"
                                     }
                                 },
                                 "type": "object"
@@ -339,6 +402,9 @@
                 "responses": {
                     "200": {
                         "description": "Deposit successful"
+                    },
+                    "400": {
+                        "description": "Invalid account or unauthorized deposit"
                     }
                 },
                 "security": [

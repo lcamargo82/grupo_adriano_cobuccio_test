@@ -38,6 +38,11 @@ class AccountRepository
         return Account::where('id', $accountId)->where('user_id', $authUserId)->first();
     }
 
+    public function accountFindById($accountId)
+    {
+        return Account::where('id', $accountId)->first();
+    }
+
     /**
      * @param array $data
      * @return mixed
@@ -48,22 +53,17 @@ class AccountRepository
     }
 
     /**
-     * @param $userId
+     * @param $accountId
      * @param $amount
-     * @param $authUserId
-     * @return null
+     * @return void
      */
-    public function updateBalance($userId, $amount, $authUserId)
+    public function updateBalance($accountId, $amount)
     {
-        if ($userId !== $authUserId) {
-            return null;
-        }
-        $account = $this->findByUserId($userId, $authUserId);
+        $account = Account::find($accountId);
         if ($account) {
             $account->balance += $amount;
             $account->save();
         }
-        return $account;
     }
 
     /**
