@@ -13,7 +13,7 @@ echo "✅ Banco de dados disponível!"
 
 echo "📜 Executando migrações do Laravel..."
 php artisan migrate --no-interaction --force
-ß
+
 echo "📄 Generating API documentation..."
 php artisan l5-swagger:generate
 

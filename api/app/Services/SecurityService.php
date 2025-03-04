@@ -23,6 +23,5 @@ class SecurityService
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }
-
     }
 }
