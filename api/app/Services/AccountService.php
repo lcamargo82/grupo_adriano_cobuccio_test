@@ -38,7 +38,13 @@ class AccountService
     public function getById($userId, $accountId)
     {
         try {
-            return $this->accountRepository->findById($accountId, $userId);
+            $account = $this->accountRepository->findById($accountId, $userId);
+
+            if (!$account) {
+                throw new Exception('Account not found', 404);
+            }
+
+            return $account;
         } catch (Exception $e) {
             throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }

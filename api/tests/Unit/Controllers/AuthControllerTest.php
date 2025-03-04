@@ -27,7 +27,7 @@ class AuthControllerTest extends TestCase
         $requestData = [
             'name' => 'John Doe',
             'email' => 'johndoe@example.com',
-            'password' => bcrypt('password123')
+            'password' => 'w2B8HXb5lJlY2eFauMdFoqSXJGz5IQzM26IxEHL7GvM5AI3GXuUJvla3nkndPaupIoy8NDb/WLsS9UroM43prsZUQKaDQ7Qxxx1sLj1AHeV3IY1NZw0v6/PEQ2PyssXZPyZujgkX4dw4kBJ58LPJgZVk3u/oRgieDi5n1lVy/1lzu9gLW5PWVf0/uQn1ZgmRN4xbQn+RMb4MULUa35kNTL0InDJBZas+M3e0VQFiHptWKvt873ED15624NmQHJXL3eA/8KFmYvhjBDJNWPZNm4jpBM6MrZNf1bRXFCIXF9XRBpvO2X7gEb3I7NbaQ8NOL2QafyYOj30cP0qP8dxeWA=='
         ];
 
         $request = Request::create('/api/register', 'POST', $requestData);

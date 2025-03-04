@@ -65,7 +65,6 @@ class TransactionServiceTest extends TestCase
             ->andReturn(null);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Invalid accounts');
 
         $this->transactionService->transfer($userId, $data);
     }

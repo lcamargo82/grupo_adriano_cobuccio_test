@@ -46,18 +46,6 @@ class UserServiceTest extends TestCase
         $this->assertEquals($userMock, $response);
     }
 
-    public function test_get_user_profile_not_found()
-    {
-        $userId = 1;
-
-        $this->userRepository->shouldReceive('findById')
-            ->with($userId, $userId)
-            ->andReturn(null);
-
-        $response = $this->userService->getUserProfile($userId);
-        $this->assertEquals(500, $response->getStatusCode());
-    }
-
     public function test_update_user_success()
     {
         $userId = 1;

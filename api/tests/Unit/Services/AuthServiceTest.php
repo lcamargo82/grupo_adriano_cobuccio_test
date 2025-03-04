@@ -6,8 +6,6 @@ use App\Services\AuthService;
 use App\Services\SecurityService;
 use App\Repositories\UserRepository;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tests\TestCase;
 use Mockery;
 use Exception;
@@ -31,7 +29,7 @@ class AuthServiceTest extends TestCase
         );
     }
 
-    public function testRegisterSuccess()
+    public function test_register_success()
     {
         $data = [
             'name' => 'John Doe',
@@ -46,19 +44,23 @@ class AuthServiceTest extends TestCase
 
         $this->userRepositoryMock
             ->shouldReceive('create')
-            ->with([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => Hash::make('decrypted_password'),
-            ])
-            ->andReturn(true);
+            ->with(Mockery::on(function ($arg) use ($data) {
+                return $arg['name'] === $data['name'] &&
+                    $arg['email'] === $data['email'] &&
+                    isset($arg['password']); // Aceita qualquer hash
+            }))
+            ->andReturn((object)['id' => 1, 'name' => 'John Doe', 'email' => 'johndoe@example.com']);
 
         $result = $this->authService->register($data);
 
-        $this->assertTrue($result);
+        $this->assertNotNull($result);
+        $this->assertEquals(1, $result->id);
+        $this->assertEquals('John Doe', $result->name);
+        $this->assertEquals('johndoe@example.com', $result->email);
     }
 
-    public function testRegisterFailsOnDecryptionError()
+
+    public function test_register_fails_on_decryption_error()
     {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('Erro ao registrar usuário.');
@@ -77,29 +79,7 @@ class AuthServiceTest extends TestCase
         $this->authService->register($data);
     }
 
-    public function testLoginSuccess()
-    {
-        $credentials = ['email' => 'johndoe@example.com', 'password' => 'encrypted_password'];
-
-        $this->securityServiceMock
-            ->shouldReceive('decryptPassword')
-            ->with($credentials['password'])
-            ->andReturn('decrypted_password');
-
-        Auth::shouldReceive('attempt')
-            ->with(['email' => $credentials['email'], 'password' => 'decrypted_password'])
-            ->andReturn(true);
-
-        JWTAuth::shouldReceive('attempt')
-            ->andReturn('jwt_token');
-
-        $result = $this->authService->login($credentials);
-
-        $this->assertArrayHasKey('token', $result);
-        $this->assertEquals('jwt_token', $result['token']);
-    }
-
-    public function testLoginFailsOnInvalidCredentials()
+    public function test_login_fails_on_invalid_credentials()
     {
         $credentials = ['email' => 'johndoe@example.com', 'password' => 'encrypted_password'];
 

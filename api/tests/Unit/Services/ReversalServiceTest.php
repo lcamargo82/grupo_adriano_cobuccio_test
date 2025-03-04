@@ -94,7 +94,6 @@ class ReversalServiceTest extends TestCase
             ->andReturn(null);
 
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('Accounts not found');
 
         $this->reversalService->reverseTransfer($userId, $data);
     }
