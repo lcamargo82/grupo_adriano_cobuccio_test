@@ -58,5 +58,11 @@ docker exec -it api_app php artisan migrate:fresh --seed
 ```
 
 ## Observações
+- Para testes de criação de usuário e login via postman é necessário a criptografia da senha no envio com o comando:
+- 
+```bash
+echo -n "sua_senha_a_ser_enviada" | openssl rsautl -encrypt -pubin -inkey public.pem | base64
+```
+
 - Certifique-se de que suas portas no Docker não estejam em conflito com outras aplicações.
 - Configure as variáveis de ambiente no arquivo .env conforme necessário para sua aplicação.
