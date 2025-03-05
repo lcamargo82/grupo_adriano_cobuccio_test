@@ -71,7 +71,12 @@ class AuthController extends Controller
      *             @OA\Property(property="password", type="string", example="123456")
      *         )
      *     ),
-     *     @OA\Response(response=200, description="JWT token generated successfully"),
+     *     @OA\Response(response=200, description="JWT token generated successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="token", type="string", example="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZXhwIjoxNjM5ODI0NjYyfQ.-VZH7Dx6qS4BdF_HQyHtI5Ak0yT_eVf6FY5qISnaGo0"),
+     *             @OA\Property(property="username", type="string", example="John Doe")
+     *         )
+     *     ),
      *     @OA\Response(response=401, description="Unauthorized")
      * )
      */
@@ -81,11 +86,17 @@ class AuthController extends Controller
             $credentials = $request->only('email', 'password');
 
             $token = $this->authService->login($credentials);
+
             if (!$token) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
 
-            return response()->json(['token' => $token]);
+            $user = auth()->user();
+
+            return response()->json([
+                'token' => $token,
+                'username' => $user->name
+            ]);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }

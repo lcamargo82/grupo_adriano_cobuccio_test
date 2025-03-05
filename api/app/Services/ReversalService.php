@@ -13,11 +13,6 @@ class ReversalService
     protected $transactionRepository;
     protected $accountRepository;
 
-    /**
-     * @param ReversalRepository $reversalRepository
-     * @param TransactionRepository $transactionRepository
-     * @param AccountRepository $accountRepository
-     */
     public function __construct(ReversalRepository $reversalRepository, TransactionRepository $transactionRepository, AccountRepository $accountRepository)
     {
         $this->reversalRepository = $reversalRepository;
@@ -25,16 +20,10 @@ class ReversalService
         $this->accountRepository = $accountRepository;
     }
 
-    /**
-     * @param $userId
-     * @param array $data
-     * @return void
-     * @throws Exception
-     */
     public function reverseTransfer($userId, array $data)
     {
         try {
-            $transaction = $this->transactionRepository->findById($data['transaction_id'], $userId);
+            $transaction = $this->transactionRepository->findById($data['transaction_id'], $data['account_id'], $userId);
 
             if (!$transaction) {
                 throw new Exception('Invalid transaction or unauthorized reversal');
@@ -47,14 +36,31 @@ class ReversalService
                 throw new Exception('Accounts not found');
             }
 
-            if ($recipientAccount->balance < $transaction->amount) {
-                throw new Exception('Insufficient balance for reversal');
+            if ($senderAccount->user_id !== $userId) {
+                throw new Exception('Unauthorized user');
             }
+
+            if ($transaction->status === false) {
+                throw new Exception('Transaction already reversed');
+            }
+
 
             $this->reversalRepository->create([
                 'transaction_id' => $transaction->id,
-                'reason' => $data['reason'] ?? 'No reason provided'
+                'reason' => $data['reason'] ?? 'No reason provided',
+                'type' => 'reversal',
             ]);
+
+            $this->transactionRepository->create([
+                'sender_id' => $transaction->receiver_id,
+                'receiver_id' => $transaction->sender_id,
+                'amount' => $transaction->amount,
+                'type' => 'reversal',
+                'description' => 'Reversão de Transferência',
+                'status' => false,
+            ]);
+
+            $this->transactionRepository->updateStatus($transaction->id, false);
 
             $this->accountRepository->updateBalance($recipientAccount->id, -$transaction->amount);
             $this->accountRepository->updateBalance($senderAccount->id, $transaction->amount);
@@ -63,15 +69,10 @@ class ReversalService
         }
     }
 
-    /**
-     * @param array $data
-     * @return void
-     * @throws Exception
-     */
-    public function reverseDeposit(array $data)
+    public function reverseDeposit($userId, array $data)
     {
         try {
-            $deposit = $this->transactionRepository->findDepositById($data['deposit_id']);
+            $deposit = $this->transactionRepository->findDepositById($data['transaction_id']);
 
             if (!$deposit) {
                 throw new Exception('Invalid deposit or unauthorized reversal');
@@ -83,10 +84,37 @@ class ReversalService
                 throw new Exception('Account not found');
             }
 
+            if ($account->user_id !== $userId) {
+                throw new Exception('Unauthorized user');
+            }
+
+            if ($deposit->status === false) {
+                throw new Exception('Deposit already reversed');
+            }
+
+            $account = $this->accountRepository->accountFindById($deposit->receiver_id);
+
+            if (!$account) {
+                throw new Exception('Account not found');
+            }
+
+
             $this->reversalRepository->create([
                 'transaction_id' => $deposit->id,
-                'reason' => $data['reason'] ?? 'No reason provided'
+                'reason' => $data['reason'] ?? 'No reason provided',
+                'type' => 'reversal',
             ]);
+
+            $this->transactionRepository->create([
+                'sender_id' => $deposit->receiver_id,
+                'receiver_id' => $deposit->sender_id,
+                'amount' => -$deposit->amount,
+                'type' => 'reversal',
+                'description' => 'Reversão de Depósito',
+                'status' => false,
+            ]);
+
+            $this->transactionRepository->updateStatus($deposit->id, false);
 
             $this->accountRepository->updateBalance($account->id, -$deposit->amount);
         } catch (Exception $e) {

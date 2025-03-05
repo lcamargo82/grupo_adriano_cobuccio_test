@@ -10,7 +10,7 @@ class Account extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['user_id', 'balance'];
+    protected $fillable = ['name', 'user_id', 'balance'];
     protected $dates = ['deleted_at'];
 
     public function user()

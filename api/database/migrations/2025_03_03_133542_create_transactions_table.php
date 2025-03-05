@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('receiver_id')->nullable()->constrained('accounts')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->enum('type', ['deposit', 'transfer', 'reversal']);
+            $table->boolean('status')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

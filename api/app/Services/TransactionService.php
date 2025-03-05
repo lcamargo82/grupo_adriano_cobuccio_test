@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\TransactionRepository;
 use App\Repositories\AccountRepository;
+use Carbon\Carbon;
 use Exception;
 
 class TransactionService
@@ -19,6 +20,16 @@ class TransactionService
     {
         $this->transactionRepository = $transactionRepository;
         $this->accountRepository = $accountRepository;
+    }
+
+    /**
+     * @param $user
+     * @param $accountId
+     * @return mixed
+     */
+    public function getAccountTransactions($user, $accountId)
+    {
+       return $this->transactionRepository->getTransactionsByAccount($user, $accountId);
     }
 
     /**

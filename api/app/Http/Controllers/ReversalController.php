@@ -26,6 +26,7 @@ class ReversalController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"transaction_id", "reason"},
+     *             @OA\Property(property="account_id", type="integer", example=72, description="ID of the account"),
      *             @OA\Property(property="transaction_id", type="integer", example=10, description="ID of the transaction to be reversed"),
      *             @OA\Property(property="reason", type="string", example="Sent to the wrong account", description="Reason for the reversal")
      *         )
@@ -53,7 +54,8 @@ class ReversalController extends Controller
      *         required=true,
      *         @OA\JsonContent(
      *             required={"deposit_id", "reason"},
-     *             @OA\Property(property="deposit_id", type="integer", example=5, description="ID of the deposit to be reversed"),
+     *             @OA\Property(property="account_id", type="integer", example=72, description="ID of the account"),
+     *             @OA\Property(property="transaction_id", type="integer", example=5, description="ID of the deposit to be reversed"),
      *             @OA\Property(property="reason", type="string", example="Deposit sent to the wrong account", description="Reason for the reversal")
      *         )
      *     ),
@@ -64,7 +66,7 @@ class ReversalController extends Controller
     public function reverseDeposit(Request $request)
     {
         try {
-            $this->reversalService->reverseDeposit($request->all());
+            $this->reversalService->reverseDeposit(Auth::id(), $request->all());
             return response()->json(['message' => 'Deposit reversed successfully']);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
