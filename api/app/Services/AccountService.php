@@ -60,6 +60,7 @@ class AccountService
         try {
             return $this->accountRepository->create(['user_id' => $userId, 'name' => $data['name']]);
         } catch (Exception $e) {
+            dd($e);
             throw new Exception($e->getMessage(), $e->getCode() ?: 500);
         }
     }

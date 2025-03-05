@@ -3,9 +3,72 @@
 namespace App\Repositories;
 
 use App\Models\Transaction;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class TransactionRepository
 {
+
+    /**
+     * @param $user
+     * @param $accountId
+     * @return Collection
+     */
+    public function getTransactionsByAccount($user, $accountId)
+    {
+        $transactions = Transaction::withTrashed()
+            ->selectRaw('
+            t.id,
+            t.created_at,
+            t.type,
+            t.amount,
+            t.sender_id,
+            t.receiver_id,
+            a.id as account_id,
+            a.name as account_name,
+            t.status
+        ')
+            ->from('transactions as t')
+            ->join('accounts as a', function ($join) use ($accountId) {
+                $join->on('t.receiver_id', '=', 'a.id')
+                    ->orOn('t.sender_id', '=', 'a.id');
+            })
+            ->where(function ($query) use ($accountId) {
+                $query->where('t.receiver_id', $accountId)
+                    ->orWhere('t.sender_id', $accountId);
+            })
+            ->get();
+
+        $formattedTransactions = $transactions->map(function ($transaction) use ($accountId) {
+            $transaction->created_at = Carbon::parse($transaction->created_at)->format('d/m/Y');
+
+            if ($transaction->type === 'transfer') {
+                if ($transaction->receiver_id === $accountId) {
+                    $transaction->amount = $transaction->amount;
+                    $transaction->account_name = $transaction->account_id . '-' . $transaction->account_name;
+                } else {
+                    $transaction->amount = -$transaction->amount;
+                    $transaction->account_name = $transaction->account_id . '-' . $transaction->account_name;
+                }
+            } elseif ($transaction->type === 'reversal') {
+                $transaction->account_name = 'Estorno';
+                $transaction->amount = -$transaction->amount; // Valor negativo para estorno
+            } else {
+                $transaction->account_name = 'Depósito';
+            }
+
+            unset($transaction->sender_id, $transaction->receiver_id, $transaction->account_id);
+
+            return $transaction;
+        });
+
+        $uniqueTransactions = $formattedTransactions->unique(function ($item) {
+            return $item->id . $item->amount;
+        });
+
+        return $uniqueTransactions->values();
+    }
+
     /**
      * @param array $data
      * @return mixed
@@ -15,17 +78,19 @@ class TransactionRepository
         return Transaction::create($data);
     }
 
+
     /**
      * @param $id
+     * @param $accountId
      * @param $authUserId
      * @return mixed
      */
-    public function findById($id, $authUserId)
+    public function findById($id, $accountId, $authUserId)
     {
         return Transaction::where('id', $id)
-            ->where(function ($query) use ($authUserId) {
-                $query->where('sender_id', $authUserId)
-                    ->orWhere('receiver_id', $authUserId);
+            ->where(function ($query) use ($authUserId, $accountId) {
+                $query->where('sender_id', $accountId)
+                    ->orWhere('receiver_id', $accountId);
             })
             ->first();
     }
@@ -82,5 +147,16 @@ class TransactionRepository
     public function findDepositById($depositId)
     {
         return Transaction::where('id', $depositId)->where('type', 'deposit')->first();
+    }
+
+    /**
+     * @param $transactionId
+     * @param $status
+     * @return mixed
+     */
+    public function updateStatus($transactionId, $status)
+    {
+        return Transaction::where('id', $transactionId)
+            ->update(['status' => $status]);
     }
 }

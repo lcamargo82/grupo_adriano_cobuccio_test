@@ -13,6 +13,7 @@ class AccountFactory extends Factory
     public function definition()
     {
         return [
+            'name' => $this->faker->name(),
             'user_id' => User::factory(),
             'balance' => $this->faker->randomFloat(2, 0, 1000),
             'deleted_at' => null

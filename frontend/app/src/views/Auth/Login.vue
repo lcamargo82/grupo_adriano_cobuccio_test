@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { encryptPassword } from '@/services/cryptoService'; // Importando o serviço de criptografia
-import { useToast } from 'vue-toastification'; // Para mostrar alertas
+import { encryptPassword } from '@/services/cryptoService';
+import { useToast } from 'vue-toastification';
 import { loginUser } from '@/services/api';
-import BaseLayout from "@/components/BaseLayout.vue"; // Serviço de API para login
+import { useAuthStore } from '@/stores/authStore';
+import BaseLayout from "@/components/BaseLayout.vue";
 
 const router = useRouter();
 const toast = useToast();
+const authStore = useAuthStore();
 
 const form = ref({
   email: '',
@@ -24,9 +26,21 @@ const submitLogin = async () => {
 
   try {
     const response = await loginUser(form.value.email, encryptedPassword);
-    toast.success('Login bem-sucedido');
-    router.push('/dashboard');
+
+    if (response && response.token && response.username) {
+      const token = response.token.token;
+      const username = response.username;
+
+      authStore.setToken(token);
+      authStore.setUsername(username);
+
+      toast.success('Login bem-sucedido');
+      router.push('/dashboard');
+    } else {
+      toast.error('Erro: Token ou nome do usuário não encontrado na resposta da API');
+    }
   } catch (error) {
+    console.error(error);
     toast.error('Erro ao fazer login');
   }
 };

@@ -19,6 +19,14 @@ class UserController
         $this->userService = $userService;
     }
 
+    public function index()
+    {
+        $user = Auth::user();
+        $transactions = $this->transactionService->getUserTransactions($user);
+
+        return response()->json($transactions);
+    }
+
     /**
      * @OA\Get(
      *     path="/api/profile",

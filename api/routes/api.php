@@ -32,8 +32,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('accounts', [AccountController::class, 'store']);
     Route::delete('accounts/{id}', [AccountController::class, 'destroy']);
 
+    Route::get('/transactions/{accountId}', [TransactionController::class, 'index']);
     Route::post('transactions/transfer', [TransactionController::class, 'transfer']);
 
-    Route::post('reversals/transfer', [ReversalController::class, 'reverseTransaction']);
-    Route::post('reversals/deposit', [ReversalController::class, 'reverseDeposit']);
+    Route::post('reversals/transfer/{accountId}', [ReversalController::class, 'reverseTransaction']);
+    Route::post('reversals/deposit/{accountId}', [ReversalController::class, 'reverseDeposit']);
 });

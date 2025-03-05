@@ -28,7 +28,8 @@ class AccountController extends Controller
     public function index()
     {
         try {
-            return response()->json($this->accountService->getAll(Auth::id()));
+            $accounts = $this->accountService->getAll(Auth::id());
+            return response()->json($accounts);
         } catch (Exception $e) {
             return response()->json(['error' => $e->getMessage()], $e->getCode() ?: 500);
         }
