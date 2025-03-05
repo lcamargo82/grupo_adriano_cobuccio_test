@@ -67,6 +67,11 @@ return [
                 'doc_expansion' => env('L5_SWAGGER_UI_DOC_EXPANSION', 'none'),
                 'filter' => env('L5_SWAGGER_UI_FILTERS', true),
             ],
+            'assets' => [
+                'swagger-ui-bundle' => 'https://grupoadrianocobucciotest-production.up.railway.app/docs/asset/swagger-ui-bundle.js',
+                'swagger-ui-standalone-preset' => 'https://grupoadrianocobucciotest-production.up.railway.app/docs/asset/swagger-ui-standalone-preset.js',
+                'swagger-ui' => 'https://grupoadrianocobucciotest-production.up.railway.app/docs/asset/swagger-ui.css',
+            ],
             'authorization' => [
                 'persist_authorization' => env('L5_SWAGGER_UI_PERSIST_AUTHORIZATION', false),
                 'oauth2' => [
