@@ -273,13 +273,14 @@
                                 ],
                                 "properties": {
                                     "deposit_id": {
+                                        "description": "ID of the deposit to be reversed",
                                         "type": "integer",
                                         "example": 5
                                     },
                                     "reason": {
                                         "description": "Reason for the reversal",
                                         "type": "string",
-                                        "example": "Sent to the wrong account"
+                                        "example": "Deposit sent to the wrong account"
                                     }
                                 },
                                 "type": "object"
@@ -294,12 +295,7 @@
                     "400": {
                         "description": "Invalid deposit or insufficient balance"
                     }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
+                }
             }
         },
         "/api/transactions/transfer": {

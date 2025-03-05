@@ -15,6 +15,11 @@ services:
     environment:
       - APACHE_RUN_USER=www-data
       - APACHE_RUN_GROUP=www-data
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=financial_system_db
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=YourStrong!Passw0rd
 
   db:
     image: postgres:16
@@ -30,14 +35,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   frontend:
-    image: node:22-alpine
+    image: node:20-alpine
     container_name: vue_frontend
     working_dir: /app
     volumes:
       - ./frontend/app:/app
     ports:
       - "5173:5173"
-    command: sh -c "npm install && npm run dev -- --host"
+    command: sh -c "yarn && yarn run dev -- --host"
 
 volumes:
   postgres_data:

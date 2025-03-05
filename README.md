@@ -57,8 +57,16 @@ Fazendo as migrations com seeds:
 docker exec -it api_app php artisan migrate:fresh --seed
 ```
 
+### 6. Rodando os testes
+
+Rodando os testes:
+
+```bash
+docker exec -it api_app php artisan test
+```
+
 ## Observações
-- Para testes de criação de usuário e login via postman é necessário a criptografia da senha no envio com o comando:
+- Para testes de criação de usuário e login via postman é necessário a criptografia da senha antes do envio com o comando e dentro do pasta secret:
 - 
 ```bash
 echo -n "sua_senha_a_ser_enviada" | openssl rsautl -encrypt -pubin -inkey public.pem | base64
