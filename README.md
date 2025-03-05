@@ -17,7 +17,7 @@ Clone o repositório para sua máquina local:
 git clone git@github.com:lcamargo82/grupo_adriano_cobuccio_test.git
 ```
 
-### 2. Acesse a pasta do projeto
+### 2. Acesse a pasta do projeto api
 
 Acesse a pasta do projeto para configurar:
 
@@ -26,6 +26,22 @@ cd financial_system/api
 ```
 
 ### 3. Configure o .env
+
+Copie o arquivo env.exemple para .env:
+
+```bash
+cp financial_system/api/.env.example financial_system/api/.env
+```
+
+### 4. Acesse a pasta do projeto frontend
+
+Acesse a pasta do projeto para configurar:
+
+```bash
+cd financial_system/frontend/app
+```
+
+### 5. Configure o .env
 
 Copie o arquivo env.exemple para .env:
 

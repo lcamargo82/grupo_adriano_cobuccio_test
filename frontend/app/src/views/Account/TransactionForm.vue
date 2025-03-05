@@ -96,7 +96,7 @@ onMounted(() => {
           <input v-model="amount" type="number" class="form-control" placeholder="Informe o valor" required />
         </div>
 
-        <BaseButton :text="'Confirmar ' + formTitle" color="success" icon="bi bi-check" :disabled="loading"  on-click=""/>
+        <BaseButton :text="'Confirmar ' + formTitle" color="success" icon="bi bi-check" :disabled="loading"  @click="submitTransaction"/>
       </form>
 
       <div class="text-center mt-3">
