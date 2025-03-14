@@ -22,7 +22,7 @@ git clone git@github.com:lcamargo82/grupo_adriano_cobuccio_test.git
 Acesse a pasta do projeto para configurar:
 
 ```bash
-cd financial_system/api
+cd grupo_adriano_cobuccio_test/api
 ```
 
 ### 3. Configure o .env
@@ -30,15 +30,15 @@ cd financial_system/api
 Copie o arquivo env.exemple para .env:
 
 ```bash
-cp financial_system/api/.env.example financial_system/api/.env
+cp env.example .env
 ```
 
 ### 4. Acesse a pasta do projeto frontend
 
-Acesse a pasta do projeto para configurar:
+Voltar para a raiz e acesse a pasta do projeto para configurar:
 
 ```bash
-cd financial_system/frontend/app
+cd frontend/app
 ```
 
 ### 5. Configure o .env
@@ -46,15 +46,23 @@ cd financial_system/frontend/app
 Copie o arquivo env.exemple para .env:
 
 ```bash
-cp financial_system/api/.env.example financial_system/api/.env
+cp env.example .env
 ```
 
 ### 4. Fazer o build e up do container
 
-Faça o buid do container e subir a aplicação:
+Voltar para a raiz e faça o buid do container e subir a aplicação:
 
 ```bash
 docker compose up --build -d
+```
+
+### 5. Migrations com seeds
+
+Fazendo as migrations com seeds (se necessário, pois é realizado no build):
+
+```bash
+docker exec -it api_app php artisan migrate:fresh --seed
 ```
 
 As aplicações estarão disponíveis nos endereços:
@@ -64,14 +72,6 @@ API: http://localhost:8000/
 Documentação: http://localhost:8000/api/documentation
 
 Frontend: http://localhost:5173/
-
-### 5. Migrations com seeds
-
-Fazendo as migrations com seeds:
-
-```bash
-docker exec -it api_app php artisan migrate:fresh --seed
-```
 
 ### 6. Rodando os testes
 
