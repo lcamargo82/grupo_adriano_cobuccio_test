@@ -11,6 +11,9 @@ until nc -z -v -w30 "$DB_HOST" "$DB_PORT"; do
 done
 echo "✅ Banco de dados disponível!"
 
+echo "📦 Instalando dependências do Composer..."
+composer install --no-interaction --no-dev --optimize-autoloader
+
 echo "📜 Executando migrações do Laravel..."
 php artisan migrate --no-interaction --force
 
