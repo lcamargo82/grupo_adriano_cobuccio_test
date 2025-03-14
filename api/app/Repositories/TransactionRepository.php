@@ -40,7 +40,6 @@ class TransactionRepository
             ->get();
 
         $formattedTransactions = $transactions->map(function ($transaction) use ($accountId) {
-            $transaction->created_at = Carbon::parse($transaction->created_at)->format('d/m/Y');
 
             if ($transaction->type === 'transfer') {
                 if ($transaction->receiver_id === $accountId) {
@@ -52,7 +51,7 @@ class TransactionRepository
                 }
             } elseif ($transaction->type === 'reversal') {
                 $transaction->account_name = 'Estorno';
-                $transaction->amount = -$transaction->amount; // Valor negativo para estorno
+                $transaction->amount = -$transaction->amount;
             } else {
                 $transaction->account_name = 'Depósito';
             }
